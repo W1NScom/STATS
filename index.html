@@ -2,304 +2,117 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HLTV Mapstats — мобильная версия</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      height: 100%;
-      background: linear-gradient(to bottom, #d7dce3);
-      font-family: Arial, sans-serif;
-      padding: 16px;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-width: 500px;
-      width: 100%;
-      margin: 0 auto 24px;
-    }
-    .controls label {
-      display: flex;
-      flex-direction: column;
-      font-size: 16px;
-    }
-    .controls input,
-    .controls textarea,
-    .controls select {
-      margin-top: 4px;
-      padding: 10px;
-      font-family: monospace;
-      font-size: 19px;
-      width: 100%;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    .controls textarea {
-      height: 200px;
-      resize: vertical;
-    }
-    .controls button {
+
+    body {
+      background: #f0f2f5;
+      font-family: 'Segoe UI', sans-serif;
       padding: 20px;
-      font-size: 20px;
-      cursor: pointer;
-      width: 100%;
-      border: none;
-      background: linear-gradient(to right, #1a2f40, #2d3f52);
-      color: #fff;
-      border-radius: 6px;
-      transition: background 0.3s ease;
+      display: flex;
+      justify-content: center;
     }
-    .controls button:hover {
-      background: linear-gradient(to right, #2d3f52, #1a2f40);
-    }
+
     .board {
-      position: relative;
       width: 100%;
       max-width: 521px;
-      margin: 0 auto;
       background: linear-gradient(to bottom, #f0f4f8, #dce3ea);
+      border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      border-radius: 0px;
       overflow: hidden;
-    }
-    .board:after {
-      content: "";
-      display: block;
-      padding-bottom: 100%; /* Соотношение сторон 1:1 */
-    }
-    .map-overlay {
-      display: none;
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 100;
-      background-position: center center;
-      background-repeat: no-repeat;
-      background-size: cover;
-      pointer-events: none;
-    }
-    .board > *:not(.map-overlay) {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      overflow-y: auto;
       padding: 16px;
     }
-    .header {
+
+    .map {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .team {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 8px;
+      background-color: white;
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    .logo { max-width: 36px; max-height: 36px; }
-    .tournament-name {
-      font-size: 21px;
-      font-weight: bold;
+
+    .team h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .team span {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .download-container {
       text-align: center;
-      flex-grow: 1;
-      margin: 0 8px;
-      word-break: break-word;
+      margin-top: 20px;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
+
+    button {
+      background-color: #dc143c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s;
     }
-    thead {
-      background: linear-gradient(to right, #1a2f40, #dc143c);
-      color: #fff;
-    }
-    th, td {
-      border-bottom: 1px solid #ccd3dc;
-      padding: 8px;
-      text-align: center;
-      font-size: 15px;
-      white-space: nowrap;
-    }
-    th.team-name, td.team-name { text-align: left; }
-    col.score { width: 5%; }
-    col.team { width: 26%; }
-    col.stat { width: 11%; }
-    col.stat.kast { width: 20%; }
-    col.stat.adr { width: 11%; }
-    col.rating { width: 19%; }
-    td.rating-low { color: #c0392b; }
-    td.rating-high { color: #27ae60; }
-    .map-name {
-      text-align: center;
-      padding: 10px;
-      font-weight: bold;
-      font-size: 18px;
-    }
-    .current-score {
-      background-color: #1a2f40;
-      color: #FFF;
-      font-weight: bold;
+
+    button:hover {
+      background-color: #b01032;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
-
-<div class="controls">
-  <!-- Inputs -->
-  <label>Название турнира:<input type="text" id="tournamentInput" value="EPL S22 Europe Closed Qualifier" /></label>
-  <label>URL логотипа слева:<input type="text" id="logoLeftInput" value="https://i.postimg.cc/FKc97q4Q/2.png" /></label>
-  <label>URL логотипа справа:<input type="text" id="logoRightInput" value="https://i.postimg.cc/JnRCsqYT/EPL20.png" /></label>
-  <label>Счёт первой команды:<input type="number" id="score1Input" /></label>
-  <label>Счёт второй команды:<input type="number" id="score2Input" /></label>
-  <label>Название карты:
-    <select id="mapInput">
-      <option value="INFERNO">INFERNO</option>
-      <option value="DUST_2">DUST_2</option>
-      <option value="TRAIN">TRAIN</option>
-      <option value="NUKE">NUKE</option>
-      <option value="ANCIENT">ANCIENT</option>
-      <option value="ANUBIS">ANUBIS</option>
-      <option value="MIRAGE">MIRAGE</option>
-    </select>
-  </label>
-  <label>Данные команд:
-    <textarea id="inputData" placeholder="MIBR K A D KAST ADR RATING
-2.1
-saffee
-33 10 21 83.3% 69.5 1.20
-..."></textarea>
-  </label>
-  <button id="updateBtn">Обновить статистику</button>
-  <button id="downloadBtn">Скачать как изображение</button>
-  <button id="shareBtn">Поделиться</button>
-</div>
-
-<div class="board" id="board">
-  <!-- Универсальный оверлей для карты -->
-  <div class="map-overlay" id="mapOverlay"></div>
-  
-  <div class="header">
-    <img id="logoLeft" class="logo" src="" crossOrigin="anonymous" alt="Logo Left" />
-    <h1 id="tournamentName" class="tournament-name"></h1>
-    <img id="logoRight" class="logo" src="" crossOrigin="anonymous" alt="Logo Right" />
+  <div class="board" id="board">
+    <div class="map">
+      <div class="team">
+        <h3>NAVI</h3>
+        <span>16</span>
+      </div>
+      <div class="team">
+        <h3>G2</h3>
+        <span>12</span>
+      </div>
+    </div>
   </div>
-  
-  <table>
-    <colgroup><col class="score"><col class="team"><col class="stat"><col class="stat"><col class="stat"><col class="stat kast"><col class="stat adr"><col class="rating"></colgroup>
-    <thead>
-      <tr><th id="score1" class="current-score">0</th><th id="team1Name" class="team-name">Team1</th><th class="col-header"></th><th class="col-header"></th><th class="col-header"></th><th class="col-header"></th><th class="col-header"></th><th class="col-header"></th></tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td class="rating-low"></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td class="rating-low"></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td class="rating-low"></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td class="rating-low"></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td class="rating-low"></td></tr>
-    </tbody>
-  </table>
+  <div class="download-container">
+    <button id="downloadBtn">Скачать как PNG</button>
+  </div>
 
-  <table>
-    <colgroup><col class="score"><col class="team"><col class="stat"><col class="stat"><col class="stat"><col class="stat kast"><col class="stat adr"><col class="rating"></colgroup>
-    <thead>
-      <tr><th id="score2" class="current-score">0</th><th id="team2Name" class="team-name">Team2</th><th class="col-header"></th><th class="col-header"></th><th class="col-header"></th><th class="col-header"></th><th class="col-header"></th><th class="col-header"></th></tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td class="rating-low"></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td class="rating-low"></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td class="rating-low"></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td class="rating-low"></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td class="rating-low"></td></tr>
-    </tbody>
-  </table>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const board = document.getElementById('board');
 
-  <div id="mapName" class="map-name">INFERNO</div>
-</div>
-
-<script>
-  // Объект с ссылками на картинки для каждой карты
-  const mapOverlays = {
-    INFERNO: 'https://i.postimg.cc/CLvSccpB/CSPORTS-NEWS.png',
-    DUST_2: 'https://i.postimg.cc/L6ZB4b4L/CSPORTS-NEWS.png',    // <- замените на реальные ссылки
-    TRAIN: 'https://i.postimg.cc/CxsvYQJJ/CSPORTS-NEWS.png',
-    NUKE: 'https://i.postimg.cc/xC3jPYPM/CSPORTS-NEWS.png',
-    ANCIENT: 'https://i.postimg.cc/rshrQ591/CSPORTS-NEWS.png',
-    ANUBIS: 'https://i.postimg.cc/ZRQmHRd9/CSPORTS-NEWS.png',
-    MIRAGE: 'https://i.postimg.cc/x8HdbH4j/CSPORTS-NEWS.png'
-  };
-
-  function updateStats() {
-    const tournamentName = document.getElementById('tournamentInput').value;
-    const logoLeft = document.getElementById('logoLeftInput').value;
-    const logoRight = document.getElementById('logoRightInput').value;
-    const score1 = document.getElementById('score1Input').value;
-    const score2 = document.getElementById('score2Input').value;
-    const map = document.getElementById('mapInput').value;
-    const data = document.getElementById('inputData').value;
-
-    document.getElementById('tournamentName').textContent = tournamentName;
-    document.getElementById('logoLeft').src = logoLeft;
-    document.getElementById('logoRight').src = logoRight;
-    document.getElementById('score1').textContent = score1;
-    document.getElementById('score2').textContent = score2;
-    document.getElementById('mapName').textContent = map;
-
-    const overlayDiv = document.getElementById('mapOverlay');
-
-    // Если для карты есть оверлей, показываем и задаём фон
-    if (mapOverlays[map]) {
-      overlayDiv.style.backgroundImage = `url('${mapOverlays[map]}')`;
-      overlayDiv.style.display = 'block';
-    } else {
-      overlayDiv.style.display = 'none';
-      overlayDiv.style.backgroundImage = '';
-    }
-
-    const lines = data
-      .replace(/\r/g, '')
-      .split('\n')
-      .map(l => l.trim())
-      .filter(Boolean);
-
-    const tables = document.querySelectorAll('.board table');
-    tables.forEach((table, teamIdx) => {
-      let idx = teamIdx * Math.ceil(lines.length / tables.length);
-      const headerTokens = lines[idx++].split(/\s+/);
-      let rawName = headerTokens.shift();
-      if (rawName.length % 2 === 0) {
-        const half = rawName.slice(0, rawName.length / 2);
-        if (half + half === rawName) rawName = half;
-      }
-      if (/^[\d.]+$/.test(lines[idx])) idx++;
-      document.getElementById(teamIdx === 0 ? 'team1Name' : 'team2Name').textContent = rawName;
-      table.querySelectorAll('thead .col-header').forEach((th, i) => (th.textContent = headerTokens[i] || ''));
-      for (let i = 0; i < 5; i++) {
-        const name = lines[idx++];
-        const metrics = lines[idx++].split(/\s+/);
-        const cols = table.querySelectorAll('tbody tr')[i].querySelectorAll('td');
-        cols[0].textContent = name;
-        cols[1].textContent = metrics[0] || '';
-        cols[2].textContent = metrics[1] || '';
-        cols[3].textContent = metrics[2] || '';
-        cols[4].textContent = metrics[3] || '';
-        cols[5].textContent = metrics[4] || '';
-        cols[6].textContent = metrics[5] || '';
-        cols[6].classList.toggle('rating-high', parseFloat(metrics[5]) >= 1);
-        cols[6].classList.toggle('rating-low', parseFloat(metrics[5]) < 1);
-      }
+      html2canvas(board, {
+        useCORS: true,
+        scrollY: -window.scrollY
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'hltv-mapstats.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
     });
-  }
+  </script>
+</body>
+</html>
 
-  document.getElementById('updateBtn').addEventListener('click', updateStats);
-
-  document.getElementById('downloadBtn').addEventListener('click', () => {
-    html2canvas(document.getElementById('board'), { useCORS: true }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = 'mapstats-board.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    });
-  });
 
   document.getElementById('shareBtn').addEventListener('click', async () => {
     try {
