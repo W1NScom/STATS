@@ -6,7 +6,8 @@
   <title>HLTV Mapstats — мобильная версия</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
+    html, body {
+      height: 100%;
       background: linear-gradient(to bottom, #d7dce3);
       font-family: Arial, sans-serif;
       padding: 16px;
@@ -57,13 +58,16 @@
       position: relative;
       width: 100%;
       max-width: 521px;
-      height: auto;
-      aspect-ratio: 1 / 1; /* Квадратная форма */
       margin: 0 auto;
       background: linear-gradient(to bottom, #f0f4f8, #dce3ea);
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       border-radius: 0px;
-      overflow-x: auto;
+      overflow: hidden;
+    }
+    .board:after {
+      content: "";
+      display: block;
+      padding-bottom: 100%; /* Соотношение сторон 1:1 */
     }
     .map-overlay {
       display: none;
@@ -76,11 +80,20 @@
       background-size: cover;
       pointer-events: none;
     }
+    .board > *:not(.map-overlay) {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow-y: auto;
+      padding: 16px;
+    }
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px;
+      margin-bottom: 8px;
     }
     .logo { max-width: 36px; max-height: 36px; }
     .tournament-name {
@@ -133,6 +146,7 @@
 <body>
 
 <div class="controls">
+  <!-- Inputs -->
   <label>Название турнира:<input type="text" id="tournamentInput" value="EPL S22 Europe Closed Qualifier" /></label>
   <label>URL логотипа слева:<input type="text" id="logoLeftInput" value="https://i.postimg.cc/FKc97q4Q/2.png" /></label>
   <label>URL логотипа справа:<input type="text" id="logoRightInput" value="https://i.postimg.cc/JnRCsqYT/EPL20.png" /></label>
@@ -162,13 +176,15 @@ saffee
 </div>
 
 <div class="board" id="board">
+  <!-- Универсальный оверлей для карты -->
   <div class="map-overlay" id="mapOverlay"></div>
+  
   <div class="header">
     <img id="logoLeft" class="logo" src="" crossOrigin="anonymous" alt="Logo Left" />
     <h1 id="tournamentName" class="tournament-name"></h1>
     <img id="logoRight" class="logo" src="" crossOrigin="anonymous" alt="Logo Right" />
   </div>
-
+  
   <table>
     <colgroup><col class="score"><col class="team"><col class="stat"><col class="stat"><col class="stat"><col class="stat kast"><col class="stat adr"><col class="rating"></colgroup>
     <thead>
@@ -201,9 +217,10 @@ saffee
 </div>
 
 <script>
+  // Объект с ссылками на картинки для каждой карты
   const mapOverlays = {
     INFERNO: 'https://i.postimg.cc/CLvSccpB/CSPORTS-NEWS.png',
-    DUST_2: 'https://i.postimg.cc/L6ZB4b4L/CSPORTS-NEWS.png',
+    DUST_2: 'https://i.postimg.cc/L6ZB4b4L/CSPORTS-NEWS.png',    // <- замените на реальные ссылки
     TRAIN: 'https://i.postimg.cc/CxsvYQJJ/CSPORTS-NEWS.png',
     NUKE: 'https://i.postimg.cc/xC3jPYPM/CSPORTS-NEWS.png',
     ANCIENT: 'https://i.postimg.cc/rshrQ591/CSPORTS-NEWS.png',
@@ -228,6 +245,8 @@ saffee
     document.getElementById('mapName').textContent = map;
 
     const overlayDiv = document.getElementById('mapOverlay');
+
+    // Если для карты есть оверлей, показываем и задаём фон
     if (mapOverlays[map]) {
       overlayDiv.style.backgroundImage = `url('${mapOverlays[map]}')`;
       overlayDiv.style.display = 'block';
@@ -236,7 +255,12 @@ saffee
       overlayDiv.style.backgroundImage = '';
     }
 
-    const lines = data.replace(/\r/g, '').split('\n').map(l => l.trim()).filter(Boolean);
+    const lines = data
+      .replace(/\r/g, '')
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean);
+
     const tables = document.querySelectorAll('.board table');
     tables.forEach((table, teamIdx) => {
       let idx = teamIdx * Math.ceil(lines.length / tables.length);
@@ -293,6 +317,7 @@ saffee
     }
   });
 
+  // Можно сразу обновить, чтобы было видно начальное состояние
   updateStats();
 </script>
 
