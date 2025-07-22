@@ -2,7 +2,6 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HLTV Mapstats — мобильная версия</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,7 +14,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      max-width: 800px;
+      max-width: 500px;
       width: 100%;
       margin: 0 auto 24px;
     }
@@ -36,7 +35,6 @@
       border: 1px solid #ccc;
     }
     .controls textarea {
-    
       height: 200px;
       resize: vertical;
     }
@@ -54,18 +52,17 @@
     .controls button:hover {
       background: linear-gradient(to right, #2d3f52, #1a2f40);
     }
-.board {
-  position: relative;
-  width: 800px;
-  height: 800px; /* фиксированная высота, чтобы получить квадрат */
-  margin: 0 auto;
-  background: linear-gradient(to bottom, #f0f4f8, #dce3ea);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  border-radius: 0px;
-  padding-bottom: 0px;
-  overflow-x: auto;
-}
-
+    .board {
+      position: relative;
+      width: 100%;
+      max-width: 521px;
+      margin: 0 auto;
+      background: linear-gradient(to bottom, #f0f4f8, #dce3ea);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 0px;
+      padding-bottom: 0px;
+      overflow-x: auto;
+    }
     /* Универсальный оверлей для любой карты */
     .map-overlay {
       display: none;
