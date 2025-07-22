@@ -53,18 +53,18 @@
     .controls button:hover {
       background: linear-gradient(to right, #2d3f52, #1a2f40);
     }
-    .board {
-      position: relative;
-      width: 400px;
-      height: 200px;
-      max-width: 200px;
-      margin: 0 auto;
-      background: linear-gradient(to bottom, #f0f4f8, #dce3ea);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      border-radius: 0px;
-      padding-bottom: 0px;
-      overflow-x: auto;
-    }
+.board {
+  position: relative;
+  width: 400px;
+  height: 400px; /* фиксированная высота, чтобы получить квадрат */
+  margin: 0 auto;
+  background: linear-gradient(to bottom, #f0f4f8, #dce3ea);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 0px;
+  padding-bottom: 0px;
+  overflow-x: auto;
+}
+
     /* Универсальный оверлей для любой карты */
     .map-overlay {
       display: none;
