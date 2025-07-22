@@ -160,9 +160,6 @@
 
   // ... shareBtn остаётся без изменений ...
 
-  updateStats();
-
-
   document.getElementById('shareBtn').addEventListener('click', async () => {
     try {
       const canvas = await html2canvas(document.getElementById('board'), { useCORS: true });
@@ -178,7 +175,7 @@
       alert('Не удалось создать изображение для шаринга.');
     }
   });
-
+  updateStats();
 </script>
 
 </body>
